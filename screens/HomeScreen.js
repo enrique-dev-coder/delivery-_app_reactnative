@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import React, { useLayoutEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import {
   ChevronDownIcon,
   UserIcon,
@@ -16,6 +16,9 @@ import {
 } from 'react-native-heroicons/outline';
 import Categories from '../components/Categories';
 import FeaturedRow from '../components/FeaturedRow';
+
+import client from '../sanity/sanity';
+
 const HomeScreen = () => {
   //tener acceso a la navegacion para personalizar
   const navigation = useNavigation();
@@ -27,6 +30,32 @@ const HomeScreen = () => {
     });
   }, []);
 
+  //estado para las featuredcategories
+  const [featuredCategories, setFeaturedCategories] = useState([]);
+
+  useEffect(() => {
+    //REVIEW este fetch no es el fetch que usamos normalemnte , es un metodo que trae el cosntructor de client para hacer peticiones
+    //REVIEW el _type es el nombre del documento que haces en tu proyecto de codigo en schemas
+    client
+      .fetch(
+        `
+    *[_type == "featured"]{
+      ...,
+      restaurants[]->{
+        ...,
+        dishes[]->,
+        type->{
+          name
+        }
+      }
+    }
+    `
+      )
+      .then((data) => {
+        setFeaturedCategories(data);
+      });
+  }, []);
+  //console.log(featuredCategories);
   //El safeAreaView solo funciona con IOS
   //NOTE: en React native todo es flex por default y aparte es flex-col en vez de row como en web
   //NOTE : en react native la view es como un div
@@ -72,36 +101,14 @@ const HomeScreen = () => {
         {/*Categories*/}
         <Categories />
         {/*Featured Rows*/}
-        <FeaturedRow
-          id="1"
-          title="Featured"
-          description="Paid placements from our partners"
-          featuredCategory="featured"
-        />
-        <FeaturedRow
-          id="2"
-          title="Featured"
-          description="Paid placements from our partners"
-          featuredCategory="featured"
-        />
-        <FeaturedRow
-          id="3"
-          title="Featured"
-          description="Paid placements from our partners"
-          featuredCategory="featured"
-        />
-        <FeaturedRow
-          id="3"
-          title="Featured"
-          description="Paid placements from our partners"
-          featuredCategory="featured"
-        />
-        <FeaturedRow
-          id="3"
-          title="Featured"
-          description="Paid placements from our partners"
-          featuredCategory="featured"
-        />
+        {featuredCategories?.map((row) => (
+          <FeaturedRow
+            key={row._id}
+            id={row._id}
+            title={row.name}
+            description={row.short_description}
+          />
+        ))}
       </ScrollView>
     </SafeAreaView>
   );

@@ -1,9 +1,36 @@
 import { View, Text, ScrollView } from 'react-native';
 import { ArrowRightIcon } from 'react-native-heroicons/outline';
 import RestaurantCard from './RestaurantCard';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import client from '../sanity/sanity';
 
-const FeaturedRow = ({ id, title, description, featuredCategory }) => {
+const FeaturedRow = ({ id, title, description }) => {
+  const [restaurants, setRestaurants] = useState([]);
+
+  //hacer un useEffect con la petivion par ael restaurante aunque tambien se podria hacer que se pasen los datos como props
+  useEffect(() => {
+    client
+      .fetch(
+        `
+    *[_type == "featured" && _id == $id]{
+      ...,
+      restaurants[]->{
+        ...,
+        dishes[]->,
+        type-> {
+          name
+        }
+      }
+    }[0]
+    
+    `,
+        { id }
+      )
+      .then((data) => {
+        setRestaurants(data?.restaurants);
+      });
+  }, [id]);
+  // console.log(restaurants);
   return (
     <View>
       <View className="mt-4 px-4 flex-row items-center justify-between">
@@ -21,42 +48,20 @@ const FeaturedRow = ({ id, title, description, featuredCategory }) => {
         className="pt-4"
       >
         {/*reataurant cards*/}
-        <RestaurantCard
-          id={122}
-          imgUrl="https://links.papareact.com/gn7"
-          title="Yo! Sushi"
-          rating={4.5}
-          genre="japanese"
-          address="124 Main St"
-          short_description="This is a test description"
-          dishes={[]}
-          long={20}
-          lat={0}
-        />
-        <RestaurantCard
-          id={122}
-          imgUrl="https://links.papareact.com/gn7"
-          title="Yo! Sushi"
-          rating={4.5}
-          genre="japanese"
-          address="124 Main St"
-          short_description="This is a test description"
-          dishes={[]}
-          long={20}
-          lat={0}
-        />
-        <RestaurantCard
-          id={122}
-          imgUrl="https://links.papareact.com/gn7"
-          title="Yo! Sushi"
-          rating={4.5}
-          genre="japanese"
-          address="124 Main St"
-          short_description="This is a test description"
-          dishes={[]}
-          long={20}
-          lat={0}
-        />
+        {restaurants.map((res) => (
+          <RestaurantCard
+            key={res.id}
+            imgUrl={res.image}
+            title={res.name}
+            rating={res.rating}
+            genre={res.type?.name}
+            address={res.address}
+            short_description={res.short_description}
+            dishes={res.dishes}
+            long={res.long}
+            lat={res.lat}
+          />
+        ))}
       </ScrollView>
     </View>
   );
