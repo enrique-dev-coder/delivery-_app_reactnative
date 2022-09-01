@@ -8,7 +8,7 @@ const Categories = () => {
   useEffect(() => {
     client.fetch(`*[_type == "category"]`).then((data) => setCategories(data));
   }, []);
-  console.log(categories);
+  // console.log(categories);
   return (
     <ScrollView
       horizontal
