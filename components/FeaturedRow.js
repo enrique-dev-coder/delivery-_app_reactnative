@@ -48,9 +48,9 @@ const FeaturedRow = ({ id, title, description }) => {
         className="pt-4"
       >
         {/*reataurant cards*/}
-        {restaurants.map((res) => (
+        {restaurants.map((res, i) => (
           <RestaurantCard
-            key={res.id}
+            key={i}
             imgUrl={res.image}
             title={res.name}
             rating={res.rating}

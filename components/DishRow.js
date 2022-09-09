@@ -28,7 +28,7 @@ const Dishrow = ({ id, name, description, price, image }) => {
     if (items.length === 0) return;
     dispatch(removeFromBasket({ id }));
   };
-  console.log(items);
+  //console.log(items);
   return (
     <>
       <TouchableOpacity

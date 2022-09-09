@@ -1,5 +1,5 @@
 import { View, Text, ScrollView, Image, TouchableOpacity } from 'react-native';
-import React, { useLayoutEffect } from 'react';
+import React, { useEffect, useLayoutEffect } from 'react';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import { urlFor } from '../sanity/sanity';
 import {
@@ -13,6 +13,8 @@ import { QuestionMarkCircleIcon } from 'react-native-heroicons/outline';
 import DishRow from '../components/DishRow';
 
 import BasketIcon from '../components/BasketIcon';
+import { useDispatch } from 'react-redux';
+import { setRestaurant } from '../features/restaurantSlice';
 
 //NOTE el useRoute es un hook que trae los parametros de navegacion qeu vienen de el componente card, esto esta bien para ya no tener que hacer otra peticion al momento de cargar la pagina de restaurante
 const RestaurantScreen = () => {
@@ -40,6 +42,26 @@ const RestaurantScreen = () => {
       headerShown: false,
     });
   }, []);
+
+  //este useEffect lo usamos para saber cuando el usuario entro a un restaurante cuando se carga la pantalla/componente
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(
+      setRestaurant({
+        id,
+        imgUrl,
+        title,
+        rating,
+        genre,
+        address,
+        short_description,
+        dishes,
+        long,
+        lat,
+      })
+    );
+    //aqui cada que cambia la accion y para descartar errores
+  }, [dispatch]);
 
   return (
     <>
